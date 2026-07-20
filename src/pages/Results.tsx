@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Printer, Info, CheckCircle, Search, Rocket, Layout, RefreshCcw, ArrowLeft, RotateCcw } from 'lucide-react';
+
 import { Tooltip } from '../components/Tooltip';
 import { CollapsibleSection } from '../components/CollapsibleSection';
 import { Tag, AuditResult } from '../types';
@@ -442,10 +443,10 @@ View the full report at: ${window.location.href}
         </h3>
         
         {auditResults.nextSteps ? (
-          auditResults.nextSteps.map((section, idx) => (
+          auditResults.nextSteps.map((section: any, idx: number) => (
             <CollapsibleSection key={section.title} title={section.title} defaultOpen={idx === 0}>
               <div className="space-y-4">
-                {section.items.map((item, i) => (
+                {section.items.map((item: any, i: number) => (
                   <div key={i} className={`p-3 rounded-r-lg border-l-4 ${
                     item.priority === 'high' ? 'bg-syf-gold/10 border-syf-gold' : 
                     item.priority === 'medium' ? 'bg-syf-secondary/10 border-syf-secondary' : 

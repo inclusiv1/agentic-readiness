@@ -16,7 +16,7 @@ export const WebsiteAudit: React.FC<WebsiteAuditProps> = ({
   auditError,
   onRunAudit,
   progress
-}) => {
+}: WebsiteAuditProps) => {
   return (
     <div className="card">
       <div className="space-y-4">
@@ -33,7 +33,7 @@ export const WebsiteAudit: React.FC<WebsiteAuditProps> = ({
               required 
               placeholder="www.example.com" 
               value={auditUrl}
-              onChange={(e) => setAuditUrl(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAuditUrl(e.target.value)}
             />
             <button 
               disabled={isAuditing}
