@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { commercePlatforms, protocols } from '../constants';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { wrapDefinitions } from '../components/Definition';
+import { wrapDefinitions } from '../utils/wrapDefinitions';
 
 export interface FormData {
   stage?: string;
