@@ -23,22 +23,26 @@ export const wrapDefinitions = (text: string) => {
         return;
       }
       
-      const regex = new RegExp(`\\b(${term})\\b`, 'gi');
-      const split = part.split(regex);
+      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Use negative lookbehind and lookahead if possible, but \b should work for \w characters.
+      // Wait, let's try a different approach.
+      const regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
       
-      if (split.length === 1) {
-        newParts.push(part);
-      } else {
-        for (let i = 0; i < split.length; i++) {
-          if (i % 2 === 1) {
-            // Find the actual key in definitions to preserve case if needed or use the matched text
-            // Here we use the matched text split[i] but look up by term (case-insensitive)
-            newParts.push(<Definition key={`${term}-${i}`} term={term}>{split[i]}</Definition>);
-          } else if (split[i] !== '') {
-            newParts.push(split[i]);
-          }
-        }
+      let lastIndex = 0;
+      let match;
+      
+      regex.lastIndex = 0;
+      
+      while ((match = regex.exec(part)) !== null) {
+        const before = part.substring(lastIndex, match.index);
+        if (before) newParts.push(before);
+        
+        newParts.push(<Definition key={`${term}-${match.index}`} term={term}>{match[0]}</Definition>);
+        lastIndex = regex.lastIndex;
       }
+      
+      const remaining = part.substring(lastIndex);
+      if (remaining) newParts.push(remaining);
     });
     parts = newParts;
   });
