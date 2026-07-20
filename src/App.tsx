@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Header, Footer } from './components/Layout';
+import { Header } from './components/Layout';
 import { Questionnaire, ProgressBar, FormData } from './pages/Questionnaire';
 import { WebsiteAudit } from './pages/WebsiteAudit';
 import { Results } from './pages/Results';
@@ -44,7 +44,6 @@ export default function App() {
         <div className="wrap">
           {currentStep === 'form' && (
             <div className="hero">
-              <div className="eyebrow text-syf-navy">Partner Center &bull; Agentic Assessments</div>
               <h1>{wrapDefinitions('Agentic Commerce Readiness')}</h1>
               <p className="text-ink-2">
                 Determine how ready your business is for the future of AI-driven shopping and search.
@@ -91,8 +90,6 @@ export default function App() {
           )}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
