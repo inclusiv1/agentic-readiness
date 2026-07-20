@@ -1,10 +1,18 @@
 import React from 'react';
 import { commercePlatforms, protocols } from '../constants';
 
+export interface FormData {
+  stage?: string;
+  platforms?: string[];
+  protocols?: string[];
+  aiChannels?: string[];
+  goal?: string;
+}
+
 interface QuestionnaireProps {
   formStep: number;
-  formData: any;
-  setFormData: (data: any) => void;
+  formData: FormData;
+  setFormData: (data: FormData) => void;
   nextFormStep: () => void;
   prevFormStep: () => void;
   goToAudit: () => void;

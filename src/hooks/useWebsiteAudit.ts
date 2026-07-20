@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { proxyFetch } from '../services/proxyFetch';
-import { platformMarkers, protocolMarkers, paymentMarkers, aiVectorMarkers } from '../constants';
+import { platformMarkers, paymentMarkers, aiVectorMarkers } from '../constants';
 import { AuditResult, Tag } from '../types';
+import { FormData } from '../pages/Questionnaire';
 
 export const useWebsiteAudit = () => {
   const [isAuditing, setIsAuditing] = useState(false);
@@ -9,7 +10,7 @@ export const useWebsiteAudit = () => {
   const [auditResults, setAuditResults] = useState<AuditResult | null>(null);
   const [progress, setProgress] = useState<{ step: string, percentage: number } | null>(null);
 
-  const runAudit = async (url: string, formData: any) => {
+  const runAudit = async (url: string, formData: FormData) => {
     let sanitizedUrl = url.trim();
     if (!sanitizedUrl.startsWith('http://') && !sanitizedUrl.startsWith('https://')) {
       sanitizedUrl = 'https://' + sanitizedUrl;
@@ -55,7 +56,7 @@ export const useWebsiteAudit = () => {
               };
             });
             return { path, contents: res.contents };
-          } catch (e) {
+          } catch {
             console.warn(`Failed to probe ${path}`);
             return { path, contents: '' };
           }
@@ -118,20 +119,39 @@ export const useWebsiteAudit = () => {
       setProgress({ step: 'Analyzing signals...', percentage: 70 });
 
       const urlLower = sanitizedUrl.toLowerCase();
-      const getSeed = (str: string) => {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-          hash = ((hash << 5) - hash) + str.charCodeAt(i);
-          hash |= 0;
-        }
-        return Math.abs(hash);
-      };
-      const seed = getSeed(domain);
-      const rand = (max: number, offset: number = 0) => ((seed + offset) % max);
+      // const getSeed = (str: string) => {
+      //   let hash = 0;
+      //   for (let i = 0; i < str.length; i++) {
+      //     hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      //     hash |= 0;
+      //   }
+      //   return Math.abs(hash);
+      // };
+      // const seed = getSeed(domain);
+      // const rand = (max: number, offset: number = 0) => ((seed + offset) % max);
 
-      const detectedTechnologies: any[] = [];
-      const detectedPayments: any[] = [];
-      const detectedAIVectors: any[] = [];
+      const detectedTechnologies: {
+        name: string;
+        confidence: number;
+        confidenceLevel: string;
+        evidence: string[];
+        matchesSelection?: boolean;
+        tags: Tag[];
+      }[] = [];
+      const detectedPayments: {
+        name: string;
+        evidence: string;
+        tags: Tag[];
+      }[] = [];
+      const detectedAIVectors: {
+        label: string;
+        confidence: number;
+        evidence: string;
+        insight: string;
+        suggestion: string;
+        rating: string;
+        tags: Tag[];
+      }[] = [];
       
       platformMarkers.forEach(p => {
         const matchingMarkers = p.markers.filter(m => combinedContent.includes(m.toLowerCase()) || urlLower.includes(m.toLowerCase()));
@@ -170,7 +190,7 @@ export const useWebsiteAudit = () => {
         }
       }
 
-      const vectorInsights: Record<string, any> = {
+      const vectorInsights: Record<string, { insight: string; suggestion: string; rating: string }> = {
         chatbot: { insight: "Direct customer interaction layer through AI-driven chat interfaces.", suggestion: "Ensure your chatbot can access real-time inventory and order status via commerce APIs.", rating: "Essential" },
         semantic: { insight: "AI-powered search that understands intent rather than just keywords.", suggestion: "Implement vector search to allow agents to find products using natural language descriptions.", rating: "Critical" },
         personalization: { insight: "Dynamic content tailoring based on user behavior and AI models.", suggestion: "Expose personalization parameters to agents so they can represent the brand's tailored experience.", rating: "High" },
@@ -205,15 +225,16 @@ export const useWebsiteAudit = () => {
       // For now I'll provide a mock results object based on the structure but I'll need to extract the actual logic.
       // Wait, I should probably keep the logic as close as possible.
 
-      const results = generateResults(sanitizedUrl, domain, robotsTxt, combinedContent, ucpApiStatus, acpApiStatus, detectedTechnologies, detectedPayments, detectedAIVectors, botStatus, formData, rand);
+      const results = generateResults(sanitizedUrl, domain, robotsTxt, combinedContent, ucpApiStatus, acpApiStatus, detectedTechnologies, detectedPayments, detectedAIVectors, botStatus, formData);
       
       setAuditResults(results);
       setProgress({ step: 'Complete', percentage: 100 });
       setIsAuditing(false);
       return results;
-    } catch (e: any) {
+    } catch (e: unknown) {
       setIsAuditing(false);
-      setAuditError(e.message || 'Audit failed');
+      const error = e as Error;
+      setAuditError(error.message || 'Audit failed');
       return null;
     }
   };
@@ -222,7 +243,38 @@ export const useWebsiteAudit = () => {
 };
 
 // Helper function to keep useWebsiteAudit cleaner
-function generateResults(url: string, domain: string, robotsTxt: string, combinedContent: string, ucpApiStatus: boolean, acpApiStatus: boolean, detectedTechnologies: any[], detectedPayments: any[], detectedAIVectors: any[], botStatus: any[], formData: any, rand: Function): AuditResult {
+function generateResults(
+  url: string,
+  domain: string,
+  robotsTxt: string,
+  combinedContent: string,
+  ucpApiStatus: boolean,
+  acpApiStatus: boolean,
+  detectedTechnologies: {
+    name: string;
+    confidence: number;
+    confidenceLevel: string;
+    evidence: string[];
+    matchesSelection?: boolean;
+    tags: Tag[];
+  }[],
+  detectedPayments: {
+    name: string;
+    evidence: string;
+    tags: Tag[];
+  }[],
+  detectedAIVectors: {
+    label: string;
+    confidence: number;
+    evidence: string;
+    insight: string;
+    suggestion: string;
+    rating: string;
+    tags: Tag[];
+  }[],
+  botStatus: { label: string; status: boolean }[],
+  formData: FormData
+): AuditResult {
   const platformConfidence = detectedTechnologies.length > 0 ? (detectedTechnologies[0].confidenceLevel === 'High' ? 100 : detectedTechnologies[0].confidenceLevel === 'Medium' ? 70 : 40) : 0;
   
   const surveyProtocols = formData.protocols || [];
@@ -398,6 +450,7 @@ function generateResults(url: string, domain: string, robotsTxt: string, combine
     readinessSignals,
     technologies: detectedTechnologies.map(t => ({
       ...t,
+      confidence: `${t.confidence}%`,
       tag: t.matchesSelection ? { text: 'Verified Platform', type: 'success' as const } : undefined
     })),
     payments: detectedPayments,

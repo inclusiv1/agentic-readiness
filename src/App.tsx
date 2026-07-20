@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Header, Footer } from './components/Layout';
-import { Questionnaire, ProgressBar } from './pages/Questionnaire';
+import { Questionnaire, ProgressBar, FormData } from './pages/Questionnaire';
 import { WebsiteAudit } from './pages/WebsiteAudit';
 import { Results } from './pages/Results';
 import { useWebsiteAudit } from './hooks/useWebsiteAudit';
@@ -9,7 +9,7 @@ import { Step } from './types';
 export default function App() {
   const [currentStep, setCurrentStep] = useState<Step>('form');
   const [formStep, setFormStep] = useState(1);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<FormData>({});
   const [auditUrl, setAuditUrl] = useState('');
   
   const { runAudit, isAuditing, auditError, auditResults, progress } = useWebsiteAudit();

@@ -15,12 +15,12 @@ const PROXIES = [
   {
     name: 'allorigins',
     getUrl: (target: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`,
-    parse: (data: any) => data.contents
+    parse: (data: unknown) => (data as { contents: string }).contents
   },
   {
     name: 'codetabs',
     getUrl: (target: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`,
-    parse: (data: any) => typeof data === 'string' ? data : JSON.stringify(data)
+    parse: (data: unknown) => typeof data === 'string' ? data : JSON.stringify(data)
   },
   {
     name: 'corsproxy.io',
@@ -44,7 +44,7 @@ const PROXIES = [
   }
 ];
 
-export async function proxyFetch(targetUrl: string, options: { method?: string, headers?: Record<string, string>, body?: any, timeout?: number } = {}): Promise<ProxyResponse> {
+export async function proxyFetch(targetUrl: string, options: { method?: string, headers?: Record<string, string>, body?: unknown, timeout?: number } = {}): Promise<ProxyResponse> {
   const isLocalEnv = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const timeout = options.timeout || 8000; // 8 second timeout per proxy
   
@@ -53,7 +53,7 @@ export async function proxyFetch(targetUrl: string, options: { method?: string, 
     ? PROXIES 
     : PROXIES.filter(p => !p.isLocal);
 
-  let lastError: any = null;
+  let lastError: Error | null = null;
 
   for (const proxy of activeProxies) {
     const controller = new AbortController();
@@ -104,14 +104,15 @@ export async function proxyFetch(targetUrl: string, options: { method?: string, 
         contents,
         status: response.status
       };
-    } catch (err: any) {
+    } catch (err: unknown) {
       clearTimeout(timeoutId);
-      if (err.name === 'AbortError') {
+      const error = err as Error;
+      if (error.name === 'AbortError') {
         console.warn(`Proxy ${proxy.name} timed out for ${targetUrl}`);
       } else {
-        console.warn(`Proxy ${proxy.name} failed:`, err);
+        console.warn(`Proxy ${proxy.name} failed:`, error);
       }
-      lastError = err;
+      lastError = error;
       continue; // Try next proxy
     }
   }

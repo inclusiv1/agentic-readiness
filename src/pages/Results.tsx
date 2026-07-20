@@ -93,9 +93,9 @@ export const Results: React.FC<ResultsProps> = ({
           <button 
             onClick={() => {
               const subject = `Agentic Readiness Report: ${auditUrl.replace('https://', '').replace('www.', '').split('/')[0]}`;
-              const techStack = auditResults.technologies.map((t: any) => t.name).join(', ') || 'None detected';
-              const payments = auditResults.payments.map((p: any) => p.name).join(', ') || 'None detected';
-              const aiVectors = auditResults.aiVectors.map((v: any) => v.label).join(', ') || 'None detected';
+              const techStack = auditResults.technologies.map(t => t.name).join(', ') || 'None detected';
+              const payments = auditResults.payments.map(p => p.name).join(', ') || 'None detected';
+              const aiVectors = auditResults.aiVectors.map(v => v.label).join(', ') || 'None detected';
               
               const body = `
 Agentic Readiness Report for ${auditUrl}
@@ -249,7 +249,7 @@ View the full report at: ${window.location.href}
             <Search size={18} /> Verification Notes
           </h3>
           <div className="space-y-4 mt-4">
-            {auditResults.mismatches.map((m: any, i: number) => (
+            {auditResults.mismatches.map((m, i) => (
               <div key={i} className="p-4 rounded-lg bg-white border border-syf-autumn/20">
                 <div className="flex justify-between items-start mb-1">
                   <div className="font-bold text-syf-autumn text-sm uppercase tracking-wide">{m.type}</div>
@@ -280,7 +280,7 @@ View the full report at: ${window.location.href}
           </div>
         </div>
         <ul className="check-list">
-          {auditResults.readinessSignals.map((signal: any, i: number) => (
+          {auditResults.readinessSignals.map((signal, i) => (
             <li key={i}>
               <div className={`check-icon ${signal.status ? 'pass' : 'fail'}`}>
                 {signal.status ? '✓' : '×'}
@@ -320,7 +320,7 @@ View the full report at: ${window.location.href}
         </div>
         {auditResults.technologies.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {auditResults.technologies.map((tech: any) => (
+            {auditResults.technologies.map((tech) => (
               <div key={tech.name} className="p-4 rounded-lg bg-sand/30 border border-ink/5">
                 <div className="flex justify-between items-start mb-2">
                   <div className="font-bold text-ink">{tech.name}</div>
@@ -364,7 +364,7 @@ View the full report at: ${window.location.href}
           <h3>Payment Systems</h3>
           {auditResults.payments.length > 0 ? (
             <ul className="space-y-2 mt-4">
-              {auditResults.payments.map((p: any) => (
+              {auditResults.payments.map((p) => (
                 <li key={p.name} className="flex items-center justify-between text-sm text-ink/80">
                   <div className="flex items-center gap-2">
                     <CheckCircle size={14} className="text-syf-secondary" />
@@ -394,7 +394,7 @@ View the full report at: ${window.location.href}
           </div>
           {auditResults.aiVectors.length > 0 ? (
             <div className="space-y-4 mt-4">
-              {auditResults.aiVectors.map((v: any) => (
+              {auditResults.aiVectors.map((v) => (
                 <div key={v.label} className="p-3 rounded-lg border border-line bg-white">
                   <div className="flex justify-between items-start mb-2">
                      <div className="flex items-center gap-2">
@@ -424,7 +424,7 @@ View the full report at: ${window.location.href}
         <h3>LLM & Agent Visibility</h3>
         <p className="qhint">Detection of agent-specific crawlers and LLM access points.</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
-          {auditResults.bots?.map((bot: any) => (
+          {auditResults.bots?.map((bot) => (
             <div key={bot.label} className={`p-3 rounded-lg border flex flex-col items-center text-center ${bot.status ? 'border-syf-secondary bg-syf-secondary/5' : 'border-line opacity-50'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${bot.status ? 'bg-syf-secondary text-white' : 'bg-gray-100 text-gray-400'}`}>
                 {bot.status ? '✓' : '×'}
