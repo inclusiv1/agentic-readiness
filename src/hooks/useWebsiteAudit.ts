@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { proxyFetch } from '../services/proxyFetch';
 import { platformMarkers, protocolMarkers, paymentMarkers, aiVectorMarkers } from '../constants';
-import { AuditResult } from '../types';
+import { AuditResult, Tag } from '../types';
 
 export const useWebsiteAudit = () => {
   const [isAuditing, setIsAuditing] = useState(false);
@@ -141,15 +141,18 @@ export const useWebsiteAudit = () => {
           if (count >= 3) level = 'High';
           else if (count >= 2) level = 'Medium';
 
+          const isMatch = formData.platforms?.some((pf: string) => pf.toLowerCase().includes(p.name.toLowerCase()) || p.name.toLowerCase().includes(pf.toLowerCase()));
+          const tags: Tag[] = isMatch 
+            ? [{ text: 'Survey Match', type: 'success', category: 'platform' }] 
+            : [{ text: 'Detected', type: 'neutral', category: 'platform' }];
+
           detectedTechnologies.push({
             name: p.name,
             confidence: count,
             confidenceLevel: level,
             evidence: matchingMarkers.map(m => `Detected: ${m}`),
-            matchesSelection: formData.platforms?.some((pf: string) => pf.toLowerCase().includes(p.name.toLowerCase()) || p.name.toLowerCase().includes(pf.toLowerCase())),
-            tags: formData.platforms?.some((pf: string) => pf.toLowerCase().includes(p.name.toLowerCase()) || p.name.toLowerCase().includes(pf.toLowerCase())) 
-              ? [{ text: 'Survey Match', type: 'success', category: 'platform' }] 
-              : [{ text: 'Detected', type: 'neutral', category: 'platform' }]
+            matchesSelection: isMatch,
+            tags
           });
         }
       });
@@ -162,7 +165,7 @@ export const useWebsiteAudit = () => {
           detectedPayments.push({
             name: p.name,
             evidence: `Found ${matchingMarkers[0]} in source`,
-            tags: [{ text: 'Detected', type: 'success', category: 'platform' }]
+            tags: [{ text: 'Detected', type: 'success', category: 'platform' } as Tag]
           });
         }
       }
@@ -272,7 +275,7 @@ function generateResults(url: string, domain: string, robotsTxt: string, combine
       evidence: robotsTxt.toLowerCase().includes('gptbot') ? 'AI crawlers explicitly allowed' : 'AI crawlers may be blocked', 
       insight: 'Controls LLM data ingestion.', 
       suggestion: 'Explicitly allow GPTBot and Claude-Bot.',
-      tags: (robotsTxt.toLowerCase().includes('gptbot')) ? [{ text: 'Optimized', type: 'success', category: 'channel' }] : []
+      tags: (robotsTxt.toLowerCase().includes('gptbot')) ? [{ text: 'Optimized', type: 'success', category: 'channel' } as Tag] : []
     },
     { 
       label: 'LLM Context (llms.txt)', 
@@ -281,7 +284,7 @@ function generateResults(url: string, domain: string, robotsTxt: string, combine
       evidence: combinedContent.includes('llms.txt') ? 'llms.txt context file found' : 'No LLM context file detected', 
       insight: 'Provides high-density context for LLMs.', 
       suggestion: 'Create a /llms.txt file.',
-      tags: combinedContent.includes('llms.txt') ? [{ text: 'Detected', type: 'success', category: 'channel' }] : []
+      tags: combinedContent.includes('llms.txt') ? [{ text: 'Detected', type: 'success', category: 'channel' } as Tag] : []
     },
     { 
       label: 'Semantic Search', 
@@ -290,7 +293,7 @@ function generateResults(url: string, domain: string, robotsTxt: string, combine
       evidence: detectedAIVectors.some(v => v.label === 'Semantic Search') ? 'Vector-based search detected' : 'Standard keyword search used', 
       insight: 'Enables intent-based discovery.', 
       suggestion: 'Upgrade to a vector-based search engine.',
-      tags: detectedAIVectors.some(v => v.label === 'Semantic Search') ? [{ text: 'Implemented', type: 'success', category: 'platform' }] : []
+      tags: detectedAIVectors.some(v => v.label === 'Semantic Search') ? [{ text: 'Implemented', type: 'success', category: 'platform' } as Tag] : []
     }
   ];
 
@@ -314,7 +317,7 @@ function generateResults(url: string, domain: string, robotsTxt: string, combine
     shortTermItems.push({
       label: 'Protocol Maintenance',
       description: 'You have implemented core protocols. Focus on expanding attribute coverage in your UCP manifests.',
-      tags: [{ text: 'Verified', type: 'success', category: 'protocol' }, { text: 'Growth', type: 'neutral', category: 'journey' }],
+      tags: [{ text: 'Verified', type: 'success', category: 'protocol' }, { text: 'Growth', type: 'neutral', category: 'journey' }] as Tag[],
       priority: 'medium' as const
     });
   }
@@ -341,7 +344,7 @@ function generateResults(url: string, domain: string, robotsTxt: string, combine
   midTermItems.push({
     label: 'Semantic & Vector Search',
     description: 'Transition from keyword-based search to vector embeddings to better align with how LLMs process product intent.',
-    tags: focusOnSearch ? [{ text: 'Goal Aligned', type: 'info', category: 'goal' }, { text: 'AI Strategy', type: 'neutral', category: 'channel' }] : [{ text: 'Optimization', type: 'neutral', category: 'platform' }],
+    tags: focusOnSearch ? ([{ text: 'Goal Aligned', type: 'info', category: 'goal' }, { text: 'AI Strategy', type: 'neutral', category: 'channel' }] as Tag[]) : ([{ text: 'Optimization', type: 'neutral', category: 'platform' }] as Tag[]),
     priority: 'medium' as const
   });
 
@@ -349,13 +352,15 @@ function generateResults(url: string, domain: string, robotsTxt: string, combine
     midTermItems.push({
       label: 'MCP Integration',
       description: 'Explore Model Context Protocol (MCP) to provide direct tool access to your commerce engine for LLM agents.',
-      tags: [{ text: 'New Opportunity', type: 'warning', category: 'protocol' }, { text: 'Strategic', type: 'neutral', category: 'journey' }]
+      tags: [{ text: 'New Opportunity', type: 'warning', category: 'protocol' }, { text: 'Strategic', type: 'neutral', category: 'journey' }] as Tag[]
     });
   } else if (mcpFound || mcpInSurvey) {
     midTermItems.push({
       label: 'MCP Expansion',
       description: 'Enhance your MCP server with more granular tools for inventory check and personalized pricing.',
-      tags: mcpFound ? [{ text: 'Active', type: 'success', category: 'protocol' }, { text: 'Expansion', type: 'neutral', category: 'journey' }] : [{ text: 'Planned', type: 'info', category: 'protocol' }, { text: 'Goal', type: 'neutral', category: 'goal' }]
+      tags: mcpFound 
+        ? ([{ text: 'Active', type: 'success', category: 'protocol' }, { text: 'Expansion', type: 'neutral', category: 'journey' }] as Tag[]) 
+        : ([{ text: 'Planned', type: 'info', category: 'protocol' }, { text: 'Goal', type: 'neutral', category: 'goal' }] as Tag[])
     });
   }
 
@@ -368,7 +373,7 @@ function generateResults(url: string, domain: string, robotsTxt: string, combine
   longTermItems.push({
     label: 'Autonomous Transactions (AP2)',
     description: 'Implement secure payment authorization for non-human entities using AP2 protocols.',
-    tag: autonomousGoal ? { text: 'Direct Goal Match', type: 'success' as const } : undefined
+    tag: autonomousGoal ? ({ text: 'Direct Goal Match', type: 'success' } as Tag) : undefined
   });
 
   longTermItems.push({
