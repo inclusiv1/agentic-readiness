@@ -6,6 +6,7 @@ interface WebsiteAuditProps {
   isAuditing: boolean;
   auditError: string | null;
   onRunAudit: (e: React.FormEvent) => void;
+  onBypass: () => void;
   progress: { step: string, percentage: number } | null;
 }
 
@@ -15,6 +16,7 @@ export const WebsiteAudit: React.FC<WebsiteAuditProps> = ({
   isAuditing,
   auditError,
   onRunAudit,
+  onBypass,
   progress
 }: WebsiteAuditProps) => {
   return (
@@ -51,6 +53,22 @@ export const WebsiteAudit: React.FC<WebsiteAuditProps> = ({
             Your URL will be scanned for publicly available technical markers. No private data is accessed.
           </div>
         </form>
+
+        {!isAuditing && (
+          <div className="pt-4 mt-4 border-t border-line">
+            <div className="flex flex-col gap-3">
+              <div className="text-sm text-ink-2 italic">
+                The audit is a critical part of the assessment. Without it, your results will be based only on your survey responses and will not provide a complete picture of your agentic readiness.
+              </div>
+              <button 
+                onClick={onBypass}
+                className="text-syf-navy font-bold text-sm hover:underline self-start flex items-center gap-1"
+              >
+                Skip audit for now &rarr;
+              </button>
+            </div>
+          </div>
+        )}
 
         {isAuditing && (
           <div className="loading-state mt-8">

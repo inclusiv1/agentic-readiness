@@ -10,11 +10,23 @@
     "build": "vite build",
     "start": "node proxy-server.js",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "vitest run --passWithNoTests"
+    ]
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.3.3",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/react": "^19.2.17",
@@ -24,20 +36,24 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
+    "husky": "^9.1.7",
+    "jsdom": "^29.1.1",
+    "lint-staged": "^16.4.0",
     "lucide-react": "^1.24.0",
     "postcss": "^8.5.19",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^8.64.0"
+    "typescript-eslint": "^8.64.0",
+    "vitest": "^4.1.10"
   },
   "private": true,
   "dependencies": {
+    "@vitejs/plugin-react": "^6.0.3",
     "axios": "^1.18.1",
     "cors": "^2.8.6",
     "express": "^4.19.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "vite": "^8.1.5",
-    "@vitejs/plugin-react": "^6.0.3"
+    "vite": "^8.1.5"
   }
 }

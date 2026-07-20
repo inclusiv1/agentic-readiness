@@ -4,6 +4,7 @@ import { Questionnaire, ProgressBar, FormData } from './pages/Questionnaire';
 import { WebsiteAudit } from './pages/WebsiteAudit';
 import { Results } from './pages/Results';
 import { useWebsiteAudit } from './hooks/useWebsiteAudit';
+import { wrapDefinitions } from './utils/wrapDefinitions';
 import { Step } from './types';
 
 export default function App() {
@@ -44,9 +45,9 @@ export default function App() {
           {currentStep === 'form' && (
             <div className="hero">
               <div className="eyebrow text-syf-navy">Partner Center &bull; Agentic Assessments</div>
-              <h1>Agentic Commerce Readiness</h1>
+              <h1>{wrapDefinitions('Agentic Commerce Readiness')}</h1>
               <p className="text-ink-2">
-                Determine how ready your business is for the future of agent-driven commerce and search.
+                Determine how ready your business is for the future of AI-driven shopping and search.
               </p>
               <ProgressBar current={formStep} total={5} />
             </div>
@@ -70,6 +71,11 @@ export default function App() {
               isAuditing={isAuditing}
               auditError={auditError}
               onRunAudit={handleRunAudit}
+              onBypass={() => {
+                runAudit('', formData).then((results) => {
+                  if (results) setCurrentStep('results');
+                });
+              }}
               progress={progress}
             />
           )}

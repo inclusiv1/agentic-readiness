@@ -18,6 +18,7 @@ export default tseslint.config(
         browser: true,
         node: true,
         es2020: true,
+        vitest: true,
       },
       parserOptions: {
         project: ["./tsconfig.json", "./tsconfig.node.json"],

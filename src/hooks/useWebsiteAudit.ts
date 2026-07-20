@@ -12,7 +12,7 @@ export const useWebsiteAudit = () => {
 
   const runAudit = async (url: string, formData: FormData) => {
     let sanitizedUrl = url.trim();
-    if (!sanitizedUrl.startsWith('http://') && !sanitizedUrl.startsWith('https://')) {
+    if (sanitizedUrl && !sanitizedUrl.startsWith('http://') && !sanitizedUrl.startsWith('https://')) {
       sanitizedUrl = 'https://' + sanitizedUrl;
     }
 
@@ -24,52 +24,54 @@ export const useWebsiteAudit = () => {
       let combinedContent = '';
       let robotsTxt = '';
       
-      const baseUrl = new URL(sanitizedUrl).origin;
+      const baseUrl = sanitizedUrl ? new URL(sanitizedUrl).origin : '';
       const domain = baseUrl.replace(/https?:\/\//, '').replace(/www\./, '');
 
-      // Define paths to probe
-      const pathsToProbe = Array.from(new Set(['/', '/robots.txt', '/llms.txt', '/llms.text', '/checkout', '/cart', '/cart.js']));
-      
-      platformMarkers.forEach(p => {
-        if (p.paths) p.paths.forEach(path => pathsToProbe.push(path));
-      });
+      if (sanitizedUrl) {
+        // Define paths to probe
+        const pathsToProbe = Array.from(new Set(['/', '/robots.txt', '/llms.txt', '/llms.text', '/checkout', '/cart', '/cart.js']));
+        
+        platformMarkers.forEach(p => {
+          if (p.paths) p.paths.forEach(path => pathsToProbe.push(path));
+        });
 
-      const uniquePaths = Array.from(new Set(pathsToProbe));
-      const totalPaths = uniquePaths.length;
-      
-      // Parallel probing with concurrency limit
-      const concurrencyLimit = 5;
-      const probeResults: {path: string, contents: string}[] = [];
-      
-      for (let i = 0; i < uniquePaths.length; i += concurrencyLimit) {
-        const chunk = uniquePaths.slice(i, i + concurrencyLimit);
-        const results = await Promise.all(chunk.map(async (path) => {
-          try {
-            const timeout = (path === '/' || path === '/robots.txt') ? 10000 : 5000;
-            const res = await proxyFetch(baseUrl + path, { timeout });
-            setProgress(prev => {
-              if (!prev) return prev;
-              const newPercentage = Math.min(40, prev.percentage + (40 / totalPaths));
-              return {
-                step: `Probing ${path}...`,
-                percentage: Math.round(newPercentage)
-              };
-            });
-            return { path, contents: res.contents };
-          } catch {
-            console.warn(`Failed to probe ${path}`);
-            return { path, contents: '' };
-          }
-        }));
-        probeResults.push(...results);
-      }
-
-      probeResults.forEach(res => {
-        if (res.contents) {
-          combinedContent += res.contents.toLowerCase() + ' ';
-          if (res.path === '/robots.txt') robotsTxt = res.contents;
+        const uniquePaths = Array.from(new Set(pathsToProbe));
+        const totalPaths = uniquePaths.length;
+        
+        // Parallel probing with concurrency limit
+        const concurrencyLimit = 5;
+        const probeResults: {path: string, contents: string}[] = [];
+        
+        for (let i = 0; i < uniquePaths.length; i += concurrencyLimit) {
+          const chunk = uniquePaths.slice(i, i + concurrencyLimit);
+          const results = await Promise.all(chunk.map(async (path) => {
+            try {
+              const timeout = (path === '/' || path === '/robots.txt') ? 10000 : 5000;
+              const res = await proxyFetch(baseUrl + path, { timeout });
+              setProgress(prev => {
+                if (!prev) return prev;
+                const newPercentage = Math.min(40, prev.percentage + (40 / totalPaths));
+                return {
+                  step: `Probing ${path}...`,
+                  percentage: Math.round(newPercentage)
+                };
+              });
+              return { path, contents: res.contents };
+            } catch {
+              console.warn(`Failed to probe ${path}`);
+              return { path, contents: '' };
+            }
+          }));
+          probeResults.push(...results);
         }
-      });
+
+        probeResults.forEach(res => {
+          if (res.contents) {
+            combinedContent += res.contents.toLowerCase() + ' ';
+            if (res.path === '/robots.txt') robotsTxt = res.contents;
+          }
+        });
+      }
 
       setProgress({ step: 'Checking protocols...', percentage: 50 });
 
@@ -86,6 +88,7 @@ export const useWebsiteAudit = () => {
       ];
 
       const ucpCheck = async (d: string) => {
+        if (!d) return false;
         try {
           const res = await proxyFetch(`https://ucpchecker.com/api/validator?domain=${d}`, { timeout: 5000 });
           const content = typeof res.contents === 'string' ? res.contents.toLowerCase() : JSON.stringify(res.contents).toLowerCase();
@@ -94,6 +97,7 @@ export const useWebsiteAudit = () => {
       };
 
       const acpCheck = async (d: string) => {
+        if (!d) return false;
         try {
           const res = await proxyFetch(`https://ucptools.dev/api/acp-check`, {
             method: 'POST',
@@ -331,12 +335,12 @@ function generateResults(
     },
     { 
       label: 'LLM Context (llms.txt)', 
-      status: combinedContent.includes('llms.txt'), 
+      status: combinedContent.includes('llms.txt') || combinedContent.includes('llms.text'), 
       rating: 'High', 
-      evidence: combinedContent.includes('llms.txt') ? 'llms.txt context file found' : 'No LLM context file detected', 
+      evidence: (combinedContent.includes('llms.txt') || combinedContent.includes('llms.text')) ? 'llms.txt context file found' : 'No LLM context file detected', 
       insight: 'Provides high-density context for LLMs.', 
       suggestion: 'Create a /llms.txt file.',
-      tags: combinedContent.includes('llms.txt') ? [{ text: 'Detected', type: 'success', category: 'channel' } as Tag] : []
+      tags: (combinedContent.includes('llms.txt') || combinedContent.includes('llms.text')) ? [{ text: 'Detected', type: 'success', category: 'channel' } as Tag] : []
     },
     { 
       label: 'Semantic Search', 
@@ -457,6 +461,85 @@ function generateResults(
     aiVectors: detectedAIVectors,
     nextSteps,
     bots: botStatus,
-    mismatches: []
+    mismatches: generateMismatches(formData, detectedTechnologies, ucpFound, acpFound, ucpInSurvey, acpInSurvey)
   };
+}
+
+function generateMismatches(
+  formData: FormData,
+  detectedTech: any[],
+  ucpFound: boolean,
+  acpFound: boolean,
+  ucpInSurvey: boolean,
+  acpInSurvey: boolean
+) {
+  const mismatches: any[] = [];
+
+  // Platform Mismatches
+  if (formData.platforms && formData.platforms.length > 0) {
+    const undetectedPlatforms: string[] = [];
+    
+    formData.platforms.forEach(selected => {
+      // Normalize comparison for safety
+      const detection = detectedTech.find(t => 
+        t.name.toLowerCase() === selected.toLowerCase() || 
+        (selected === 'Adobe Commerce (Magento)' && t.name === 'Adobe Commerce (Magento)') ||
+        (selected === 'Salesforce Commerce Cloud' && t.name === 'Salesforce Commerce Cloud')
+      );
+
+      if (!detection) {
+        // If it's "Custom", "Other", or "I don't know", don't mark as mismatch
+        if (['Custom', 'Other', "I don't know"].includes(selected)) return;
+        undetectedPlatforms.push(selected);
+      } else if (detection.confidenceLevel === 'Low') {
+        mismatches.push({
+          type: 'Low Confidence Detection',
+          message: `We found weak signals for ${selected}, but could not confirm it with high confidence.`,
+          suggestion: 'Verify that your theme or custom frontend isn\'t stripping out standard platform markers that agents use for identification.'
+        });
+      }
+    });
+
+    if (undetectedPlatforms.length > 0) {
+      mismatches.push({
+        type: 'Undetected Commerce Platforms',
+        platforms: undetectedPlatforms,
+        message: `You indicated ${undetectedPlatforms.length === 1 ? undetectedPlatforms[0] : 'multiple platforms'} are in use, but our probe could not find their technical signatures.`,
+        suggestion: 'This often happens with headless implementations or aggressive WAF settings. Ensure your technical manifest includes platform identifiers if you want to support automated agent discovery.'
+      });
+    }
+
+    // Primary detected platform mismatch (if primary detected isn't in survey)
+    if (detectedTech.length > 0 && detectedTech[0].confidenceLevel !== 'Low') {
+      const primaryDetected = detectedTech[0].name;
+      const wasInSurvey = formData.platforms.some(p => p.toLowerCase() === primaryDetected.toLowerCase());
+      
+      if (!wasInSurvey) {
+        mismatches.push({
+          type: 'Platform Discrepancy',
+          message: `We detected ${primaryDetected} as a primary platform, but it was not selected in your survey.`,
+          suggestion: 'Review your site architecture for legacy scripts or third-party integrations that might be mimicking other platform signatures.'
+        });
+      }
+    }
+  }
+
+  // Protocol Mismatch
+  if (ucpInSurvey && !ucpFound) {
+    mismatches.push({
+      type: 'Protocol Missing',
+      message: 'Universal Commerce Protocol (UCP) was indicated in the survey but not detected during the technical probe.',
+      suggestion: 'Ensure the UCP manifest is publicly accessible at /.well-known/ucp.json and correctly headers are set.'
+    });
+  }
+
+  if (acpInSurvey && !acpFound) {
+    mismatches.push({
+      type: 'Protocol Missing',
+      message: 'Agentic Commerce Protocol (ACP) was indicated in the survey but the handshake failed during our probe.',
+      suggestion: 'Check your ACP endpoint implementation and ensure it responds correctly to agent capability queries.'
+    });
+  }
+
+  return mismatches;
 }

@@ -303,6 +303,14 @@
     @apply visible opacity-100;
   }
 
+  .definition-term {
+    @apply border-b border-dotted border-syf-navy cursor-help;
+  }
+
+  .technical-info {
+    @apply mt-2 text-[12px] text-muted bg-slate-50 p-2 rounded border border-slate-100 italic;
+  }
+
   .strategy-box {
     @apply mt-3 pt-3 border-t border-line/50;
   }
@@ -420,34 +428,35 @@
   @media print {
     body {
       background-color: white !important;
-      color: black !important;
+      color: #1a1a1a !important;
+      font-size: 11pt !important;
     }
 
     .wrap {
       @apply p-0 m-0 max-w-full;
     }
 
-    .hero, .actions, .tooltip-text::after, .no-print {
+    .hero, .actions, .tooltip-text::after, .no-print, .syf-footer {
       display: none !important;
     }
 
     .card, .score-hero, .dim-card, .detail-section, .gap-card {
-      @apply shadow-none border border-gray-200 break-inside-avoid mb-6;
+      @apply shadow-none border border-gray-400 break-inside-avoid mb-4 p-4;
       background: white !important;
-      color: black !important;
+      color: #1a1a1a !important;
     }
 
     .score-hero {
-      @apply grid-cols-1 md:grid-cols-1 text-black p-4 border-none;
-      background: #f8fafc !important;
+      @apply grid-cols-1 md:grid-cols-1 text-black p-4 border border-gray-400 mb-6;
+      background: white !important;
     }
 
     .tier-badge {
-      @apply border border-gray-400 bg-gray-100;
+      @apply border border-gray-800 bg-white px-2 py-0.5 inline-block font-bold uppercase text-xs;
       color: black !important;
     }
 
-    .gauge-num, .gauge-sub, .text-white, .dim-score .n, .strategy-text, .intent-text {
+    .gauge-num, .gauge-sub, .text-white, .dim-score .n, .strategy-text, .intent-text, .text-syf-gold {
       color: black !important;
     }
     
@@ -456,7 +465,7 @@
     }
     
     .gauge .fg {
-      stroke: #003366 !important;
+      stroke: #000000 !important;
     }
 
     .tooltip {
@@ -464,7 +473,7 @@
     }
 
     .tooltip .tooltip-text {
-      @apply visible opacity-100 static w-full bg-blue-50 text-blue-900 border-blue-200 mt-2 p-3 shadow-none;
+      @apply visible opacity-100 static w-full bg-white text-black border border-gray-300 mt-1 p-2 shadow-none text-xs italic;
       transform: none !important;
       left: auto !important;
     }
@@ -474,25 +483,105 @@
     }
 
     .dimension-grid {
-      @apply grid-cols-1 gap-4;
+      @apply grid-cols-3 gap-2 mb-4;
+    }
+
+    .dim-card {
+      @apply mb-0 p-3 flex flex-col;
+    }
+
+    .dim-card h3 {
+      @apply text-xs font-bold mb-1 mt-0;
+    }
+
+    .dim-score {
+      @apply text-lg mb-1;
+    }
+
+    .dim-score .n {
+      @apply font-bold;
+    }
+
+    .dim-bar {
+      @apply h-1 bg-gray-200 mb-1;
+    }
+
+    .dim-summary {
+      @apply text-[9px] leading-tight mb-2;
+      color: #333 !important;
     }
 
     h1, h2, h3, h4 {
       color: black !important;
+      margin-top: 0.5em !important;
+      margin-bottom: 0.25em !important;
     }
 
     .strategy-box, .intent-box {
-      @apply border-gray-200;
+      @apply border-gray-300 bg-white p-1 mt-1;
     }
     
     .strategy-label, .intent-label {
-      color: #334155 !important;
+      color: #1a1a1a !important;
+      font-weight: bold !important;
+      font-size: 8pt !important;
+    }
+
+    .strategy-text, .intent-text {
+      font-size: 8pt !important;
+      color: #333333 !important;
+      line-height: 1.2 !important;
     }
 
     .check-icon.pass { background-color: #16a34a !important; -webkit-print-color-adjust: exact; }
     .check-icon.warn { background-color: #d97706 !important; -webkit-print-color-adjust: exact; }
     .check-icon.fail { background-color: #dc2626 !important; -webkit-print-color-adjust: exact; }
     .check-icon.info { background-color: #64748b !important; -webkit-print-color-adjust: exact; }
+
+    .check-icon {
+      @apply w-4 h-4;
+      width: 1rem !important;
+      height: 1rem !important;
+    }
+
+    .check-title {
+      color: black !important;
+      font-weight: bold !important;
+    }
+
+    .check-detail {
+      color: #333333 !important;
+    }
+
+    .gap-priority {
+      @apply bg-white border border-black text-black;
+      -webkit-print-color-adjust: exact;
+    }
+
+    /* Condensing sections */
+    .detail-section {
+      @apply p-3 mb-3;
+    }
+
+    /* Force collapse content to be visible in print */
+    .animate-in {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      height: auto !important;
+      transform: none !important;
+    }
+
+    .mt-4 { margin-top: 0.5rem !important; }
+    .mb-4 { margin-bottom: 0.5rem !important; }
+    .p-4 { padding: 0.75rem !important; }
+
+    /* Ensure all collapsible sections are expanded */
+    .collapsible-content {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
   }
 
   .print-only {
