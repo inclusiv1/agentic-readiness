@@ -22,5 +22,12 @@ export const definitions: Record<string, string> = {
   'Vector': 'In AI, a way to represent data (like products or text) as numbers so the AI can easily find similar items.',
   'Audit': 'A thorough examination and evaluation of a website\'s technical capabilities and readiness.',
   'llms.txt': 'A standard text file that provides AI models with concise, high-quality information about a website to improve their understanding.',
-  'llms.text': 'An alternative name for the llms.txt file, used to provide context about a website to AI models.'
+  'llms.text': 'An alternative name for the llms.txt file, used to provide context about a website to AI models.',
+  'OpenCart': 'A popular open-source eCommerce platform known for its user-friendly interface and extensive extension marketplace.',
+  'PrestaShop': 'A flexible and scalable open-source eCommerce solution used by hundreds of thousands of merchants worldwide.',
+  'Sitecore CMS': 'An enterprise-level content management system that provides powerful personalization and marketing automation tools.',
+  'Adobe CQ (AEM)': 'Adobe Experience Manager, a comprehensive content management solution for building websites, mobile apps, and forms.',
+  'WeltPixel': 'A specialized agency and extension provider that focuses on enhancing Magento and Adobe Commerce stores.',
+  'AVADA Commerce': 'An eCommerce marketing automation platform that helps merchants grow their business through email marketing and more.',
+  'Demandware': 'The original name for Salesforce Commerce Cloud, a leading enterprise cloud commerce platform.'
 };

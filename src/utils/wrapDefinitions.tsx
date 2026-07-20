@@ -24,9 +24,12 @@ export const wrapDefinitions = (text: string) => {
       }
       
       const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      // Use negative lookbehind and lookahead if possible, but \b should work for \w characters.
-      // Wait, let's try a different approach.
-      const regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
+      // Use word boundaries if it's a simple term, otherwise just match the escaped term
+      // Note: \b doesn't work well with terms ending in special characters like )
+      const useBoundary = /^\w.*?\w$/.test(term);
+      const regex = useBoundary 
+        ? new RegExp(`\\b${escapedTerm}\\b`, 'gi')
+        : new RegExp(`${escapedTerm}`, 'gi');
       
       let lastIndex = 0;
       let match;

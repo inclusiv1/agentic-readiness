@@ -55,6 +55,34 @@ describe('wrapDefinitions', () => {
     expect(resultWithUCP).toContain('The word BUCPS contains ');
   });
 
+  it('should wrap new commerce platform terms', () => {
+    const text = 'We use OpenCart and PrestaShop.';
+    const result = wrapDefinitions(text);
+    const definitionTerms = result
+      .filter(part => typeof part === 'object')
+      .map(part => (part as React.ReactElement).props.term);
+    
+    expect(definitionTerms).toContain('OpenCart');
+    expect(definitionTerms).toContain('PrestaShop');
+  });
+
+  it('should handle complex terms like Adobe CQ (AEM)', () => {
+    const text = 'Running on Adobe CQ (AEM) platform.';
+    const result = wrapDefinitions(text);
+    
+    const definitionPart = result.find(part => typeof part === 'object') as React.ReactElement;
+    expect(definitionPart.props.term).toBe('Adobe CQ (AEM)');
+    expect(definitionPart.props.children).toBe('Adobe CQ (AEM)');
+  });
+
+  it('should handle Demandware correctly', () => {
+    const text = 'Formerly known as Demandware.';
+    const result = wrapDefinitions(text);
+    
+    const definitionPart = result.find(part => typeof part === 'object') as React.ReactElement;
+    expect(definitionPart.props.term).toBe('Demandware');
+  });
+
   it('should handle multiple terms in the same string', () => {
     const text = 'MCP and UCP are protocols.';
     const result = wrapDefinitions(text);
