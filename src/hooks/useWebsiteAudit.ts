@@ -350,10 +350,10 @@ function generateResults(
   ];
 
   // Dynamic Next Steps
-  const nextSteps = [];
+  const nextSteps: any[] = [];
 
   // Short Term
-  const shortTermItems = [];
+  const shortTermItems: any[] = [];
   if (!ucpFound || !acpFound) {
     const tags: Tag[] = [];
     if (ucpInSurvey || acpInSurvey) tags.push({ text: 'Survey Priority', type: 'info', category: 'goal' });
@@ -390,7 +390,7 @@ function generateResults(
   nextSteps.push({ title: '1. Short-Term Implementation (0-3 Months)', items: shortTermItems });
 
   // Mid Term
-  const midTermItems = [];
+  const midTermItems: any[] = [];
   const focusOnSearch = formData.aiChannels?.includes('Generative Discovery (Perplexity, ChatGPT)');
   
   midTermItems.push({
@@ -419,7 +419,7 @@ function generateResults(
   nextSteps.push({ title: '2. Mid-Term Strategy: Agentic Vectors (3-9 Months)', items: midTermItems });
 
   // Long Term
-  const longTermItems = [];
+  const longTermItems: any[] = [];
   const autonomousGoal = formData.goal === 'Enable autonomous shopping';
   
   longTermItems.push({
