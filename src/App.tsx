@@ -5,15 +5,29 @@ import { WebsiteAudit } from './pages/WebsiteAudit';
 import { Results } from './pages/Results';
 import { useWebsiteAudit } from './hooks/useWebsiteAudit';
 import { wrapDefinitions } from './utils/wrapDefinitions';
+import { TestingMatrix } from './pages/TestingMatrix';
 import { Step } from './types';
 
 export default function App() {
-  const [currentStep, setCurrentStep] = useState<Step>('form');
+  const [currentStep, setCurrentStep] = useState<Step | 'test-matrix'>('form');
   const [formStep, setFormStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({});
   const [auditUrl, setAuditUrl] = useState('');
   
   const { runAudit, isAuditing, auditError, auditResults, progress } = useWebsiteAudit();
+
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#testing-matrix') {
+        setCurrentStep('test-matrix');
+      } else if (currentStep === 'test-matrix') {
+        setCurrentStep('form');
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [currentStep]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -41,8 +55,11 @@ export default function App() {
       <Header />
       
       <main className="flex-grow">
-        <div className="wrap">
-          {currentStep === 'form' && (
+        {currentStep === 'test-matrix' ? (
+          <TestingMatrix />
+        ) : (
+          <div className="wrap">
+            {currentStep === 'form' && (
             <div className="hero">
               <h1>{wrapDefinitions('Agentic Commerce Readiness')}</h1>
               <p className="text-ink-2">
@@ -88,7 +105,8 @@ export default function App() {
               onRestartSurveySeed={() => restartSurvey(true)}
             />
           )}
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );

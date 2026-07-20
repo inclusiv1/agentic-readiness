@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:matrix": "node scripts/run-tests.js",
     "test:watch": "vitest",
     "prepare": "husky"
   },
