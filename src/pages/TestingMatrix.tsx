@@ -236,8 +236,11 @@ export const TestingMatrix: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+
   const exportPDF = () => {
     try {
+      let leaderboardTable: any = null;
+
       const doc = new jsPDF();
       const fileName = activeGroup ? activeGroup.name.replace(/[^a-z0-9]/gi, '-').toLowerCase() : 'audit-results';
       const timestamp = new Date().toLocaleString();
@@ -323,11 +326,16 @@ export const TestingMatrix: React.FC = () => {
           }
         }
       });
+      leaderboardTable = (doc as any).lastAutoTable;
+
 
 
       // Individual Detailed Results
       Object.values(testResults).forEach((result) => {
         doc.addPage();
+        currentY = 20; // Reset Y for new page
+        pageRefs.push({ url: result.websiteUrl || "N/A", page: doc.getNumberOfPages() });
+
         // Result Header Hero - Black and White
         doc.setFillColor(0, 0, 0);
         doc.rect(10, currentY, 190, 50, 'F');
