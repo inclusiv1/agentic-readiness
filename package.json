@@ -53,6 +53,8 @@
     "axios": "^1.18.1",
     "cors": "^2.8.6",
     "express": "^4.19.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "vite": "^8.1.5"

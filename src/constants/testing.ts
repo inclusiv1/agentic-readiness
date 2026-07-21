@@ -1,4 +1,4 @@
-import { TestCase } from '../types/testing';
+import { TestCase, TestGroup } from '../types/testing';
 
 export const defaultTestCases: TestCase[] = [
   {
@@ -70,6 +70,14 @@ export const defaultTestCases: TestCase[] = [
   }
 ];
 
+export const defaultTestGroups: TestGroup[] = [
+  {
+    id: 'default-group',
+    name: 'Default Reports',
+    testCases: defaultTestCases
+  }
+];
+
 export const allPossibleSuggestions = [
   'Implement UCP 1.0 at /.well-known/ucp',
   'Maintain version parity.',
@@ -86,4 +94,28 @@ export const allPossibleSuggestions = [
   'MCP Expansion',
   'Autonomous Transactions (AP2)',
   'Agentic Wallets'
+];
+
+export const journeyStages = [
+  'Looking for guidance',
+  'Initial research',
+  'Pilot/POC phase',
+  'In development',
+  'Full tilt/Production'
+];
+
+export const aiChannels = [
+  'Generative Discovery (Perplexity, ChatGPT)',
+  'Personal AI Shoppers',
+  'Agent-to-Agent Negotiation',
+  'Voice Assistants',
+  'Smart Home Commerce'
+];
+
+export const goals = [
+  'Lower customer acquisition cost',
+  'Increase conversion rates',
+  'Future-proof against search changes',
+  'Enable autonomous shopping',
+  'Brand innovation leadership'
 ];
